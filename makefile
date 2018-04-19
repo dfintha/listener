@@ -1,6 +1,8 @@
 BINARY=bin/listener
 OBJECTS=obj/Main.o 				\
-		obj/DebugThread.o
+        obj/DebugThread.o
+HEADERS=src/DebugThread.hpp		\
+        src/Messages.hpp
 
 CXX=g++
 CXXFLAGS=-std=c++14 -Wall -Wextra -Werror -pedantic -O2
@@ -30,7 +32,7 @@ $(BINARY): $(OBJECTS)
 	@strip $@
 	@printf "%s[Success] Build Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
 
-obj/%.o: src/%.cpp
+obj/%.o: src/%.cpp $(HEADERS)
 	@mkdir -p obj
 	@printf "%s[Compile]%s $<$(NL)" "$(BLD)$(BLU)" $(NRM)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -40,4 +42,3 @@ clean:
 	@rm -rf bin
 	@printf "%s[ Clean ]%s obj$(NL)" "$(BLD)$(RED)" $(NRM)
 	@rm -rf obj
-

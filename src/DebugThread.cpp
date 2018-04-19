@@ -1,4 +1,5 @@
 #include "DebugThread.hpp"
+#include "Messages.hpp"
 #include <psapi.h>
 #include <iostream>
 #include <mutex>
@@ -32,138 +33,34 @@ static void ProcessExceptionEvent(EXCEPTION_DEBUG_INFO& info,
     const size_t addr = size_t(info.ExceptionRecord.ExceptionAddress);
 
     switch (info.ExceptionRecord.ExceptionCode) {
-            case EXCEPTION_ACCESS_VIOLATION:
-                sstream << "EXCEPTION_ACCESS_VIOLATION: ";
-                sstream << "The thread tried to read from or write to a "
-                           "virtual address for which it does not have the "
-                           "appropriate access.";
-                break;
+        #define HandleExceptionCode(CODE) \
+            case CODE: sstream << CODE##_DETAIL; break
+        HandleExceptionCode(EXCEPTION_ACCESS_VIOLATION);
+        HandleExceptionCode(EXCEPTION_ARRAY_BOUNDS_EXCEEDED);
+        HandleExceptionCode(EXCEPTION_BREAKPOINT);
+        HandleExceptionCode(EXCEPTION_DATATYPE_MISALIGNMENT);
+        HandleExceptionCode(EXCEPTION_FLT_DENORMAL_OPERAND);
+        HandleExceptionCode(EXCEPTION_FLT_DIVIDE_BY_ZERO);
+        HandleExceptionCode(EXCEPTION_FLT_INEXACT_RESULT);
+        HandleExceptionCode(EXCEPTION_FLT_INVALID_OPERATION);
+        HandleExceptionCode(EXCEPTION_FLT_OVERFLOW);
+        HandleExceptionCode(EXCEPTION_FLT_STACK_CHECK);
+        HandleExceptionCode(EXCEPTION_FLT_UNDERFLOW);
+        HandleExceptionCode(EXCEPTION_ILLEGAL_INSTRUCTION);
+        HandleExceptionCode(EXCEPTION_IN_PAGE_ERROR);
+        HandleExceptionCode(EXCEPTION_INT_DIVIDE_BY_ZERO);
+        HandleExceptionCode(EXCEPTION_INT_OVERFLOW);
+        HandleExceptionCode(EXCEPTION_INVALID_DISPOSITION);
+        HandleExceptionCode(EXCEPTION_NONCONTINUABLE_EXCEPTION);
+        HandleExceptionCode(EXCEPTION_PRIV_INSTRUCTION);
+        HandleExceptionCode(EXCEPTION_SINGLE_STEP);
+        HandleExceptionCode(EXCEPTION_STACK_OVERFLOW);
+        #undef HandleExceptionCode
 
-            case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-                sstream << "EXCEPTION_ARRAY_BOUNDS_EXCEEDED: ";
-                sstream << "The thread tried to access an array element that "
-                           "is out of bounds and the underlying hardware "
-                           "supports bounds checking.";
-                break;
-
-            case EXCEPTION_BREAKPOINT:
-                sstream << "EXCEPTION_BREAKPOINT: ";
-                sstream << "A breakpoint was encountered.";
-                break;
-
-            case EXCEPTION_DATATYPE_MISALIGNMENT:
-                sstream << "EXCEPTION_DATATYPE_MISALIGNMENT: ";
-                sstream << "The thread tried to read or write data that is "
-                           "misaligned on hardware that does not provide "
-                           "alignment.";
-                break;
-
-            case EXCEPTION_FLT_DENORMAL_OPERAND:
-                sstream << "EXCEPTION_FLT_DENORMAL_OPERAND: ";
-                sstream << "One of the operands in a floating-point operation "
-                           "is denormal.";
-                break;
-
-            case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-                sstream << "EXCEPTION_FLT_DIVIDE_BY_ZERO: ";
-                sstream << "The thread tried to divide a floating-point "
-                           "value by a floating-point divisor of zero.";
-                break;
-
-            case EXCEPTION_FLT_INEXACT_RESULT:
-                sstream << "EXCEPTION_FLT_INEXACT_RESULT: ";
-                sstream << "The result of a floating-point operation cannot "
-                           "be represented exactly as a decimal fraction.";
-                break;
-
-            case EXCEPTION_FLT_INVALID_OPERATION:
-                sstream << "EXCEPTION_FLT_INVALID_OPERATION: ";
-                sstream << "This exception represents any floating-point "
-                           "exception not included in this list.";
-                break;
-
-            case EXCEPTION_FLT_OVERFLOW:
-                sstream << "EXCEPTION_FLT_OVERFLOW: ";
-                sstream << "The exponent of a floating-point operation is "
-                           "greater than the magnitude allowed by the "
-                           "corresponding type.";
-                break;
-
-            case EXCEPTION_FLT_STACK_CHECK:
-                sstream << "EXCEPTION_FLT_STACK_CHECK: ";
-                sstream << "The stack overflowed or underflowed as the result "
-                           "of a floating-point operation.";
-                break;
-
-            case EXCEPTION_FLT_UNDERFLOW:
-                sstream << "EXCEPTION_FLT_UNDERFLOW: ";
-                sstream << "The exponent of a floating-point operation is "
-                           "less than the magnitude allowed by the "
-                           "corresponding type.";
-                break;
-
-            case EXCEPTION_ILLEGAL_INSTRUCTION:
-                sstream << "EXCEPTION_ILLEGAL_INSTRUCTION: ";
-                sstream << "The thread tried to execute an invalid "
-                           "instruction.";
-                break;
-
-            case EXCEPTION_IN_PAGE_ERROR:
-                sstream << "EXCEPTION_IN_PAGE_ERROR: ";
-                sstream << "The thread tried to access a page that was not "
-                           "present, and the system was unable to load the "
-                           "page.";
-                break;
-
-            case EXCEPTION_INT_DIVIDE_BY_ZERO:
-                sstream << "EXCEPTION_INT_DIVIDE_BY_ZERO: ";
-                sstream << "The thread tried to divide an integer value by "
-                           "an integer divisor of zero.";
-                break;
-
-            case EXCEPTION_INT_OVERFLOW:
-                sstream << "EXCEPTION_INT_OVERFLOW: ";
-                sstream << "The result of an integer operation caused a "
-                           "carry out of the most significant bit of the "
-                           "result.";
-                break;
-
-            case EXCEPTION_INVALID_DISPOSITION:
-                sstream << "EXCEPTION_INVALID_DISPOSITION: ";
-                sstream << "An exception handler returned an invalid "
-                           "disposition to the exception dispatcher. ";
-                break;
-
-            case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-                sstream << "EXCEPTION_NONCONTINUABLE_EXCEPTION: ";
-                sstream << "The thread tried to continue execution after a "
-                           "noncontinuable exception occurred.";
-                break;
-
-            case EXCEPTION_PRIV_INSTRUCTION:
-                sstream << "EXCEPTION_PRIV_INSTRUCTION: ";
-                sstream << "The thread tried to execute an instruction whose "
-                           "operation is not allowed in the current machine "
-                           "mode.";
-                break;
-
-            case EXCEPTION_SINGLE_STEP:
-                sstream << "EXCEPTION_SINGLE_STEP: ";
-                sstream << "A trace trap or other single-instruction mechanism "
-                           "signaled that one instruction has been executed.";
-                break;
-
-            case EXCEPTION_STACK_OVERFLOW:
-                sstream << "EXCEPTION_STACK_OVERFLOW: ";
-                sstream << "The thread used up its stack.";
-                break;
-
-            default:
-                sstream << "EXCEPTION_UNKNOWN: ";
-                sstream << "An unknown exception occurred.";
-                break;
+        default:
+            sstream << EXCEPTION_UNKNOWN_DETAIL;
+            break;
     }
-
     sstream << " (0x" << std::hex << addr << "). ";
 }
 
@@ -177,14 +74,14 @@ static void SetAttribute(WORD colorAttrs) {
 }
 
 DebugThread::DebugThread() :
-    processID(0),
+    pid(0),
     textOutput(nullptr),
     isDetaching(true),
     workThread()
 { }
 
-DebugThread::DebugThread(DWORD pid, HWND output) :
-    processID(pid),
+DebugThread::DebugThread(DWORD processId, HWND output) :
+    pid(processId),
     textOutput(output),
     isDetaching(false),
     workThread()
@@ -197,11 +94,11 @@ DebugThread::~DebugThread() noexcept {
 
 void DebugThread::Attach() {
     workThread = std::thread{[this]() {
-        HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, TRUE, processID);
+        HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, TRUE, pid);
         if (process == nullptr)
             return;
 
-        if (!DebugActiveProcess(processID)) {
+        if (!DebugActiveProcess(pid)) {
             CloseHandle(process);
             return;
         }
@@ -210,7 +107,7 @@ void DebugThread::Attach() {
         {
             WCHAR path[MAX_PATH];
             if (!GetModuleFileNameExW(process, nullptr, path, MAX_PATH)) {
-                fileName = L"(Unknown)";
+                fileName = UNKNOWN_PATH;
             } else {
                 fileName = path;
                 const size_t where = fileName.rfind(L'\\');
@@ -220,7 +117,7 @@ void DebugThread::Attach() {
         }
 
         std::wstringstream ss;
-        ss << fileName << " [" << processID << "]: Attached to Process.";
+        ss << fileName << " [" << pid << "]: " << MESSAGE_ATTACHED;
         SetAttribute(colStartStop);
         Print(ss.str());
 
@@ -234,8 +131,8 @@ void DebugThread::Attach() {
             switch (event.dwDebugEventCode) {
                 case OUTPUT_DEBUG_STRING_EVENT: 
                 {
-                    std::wstringstream ss;
-                    ss << fileName << " [" << processID << "]: ";
+                    ss.str(L"");
+                    ss << fileName << " [" << pid << "]: ";
                     ProcessDebugStringEvent(process, event.u.DebugString, ss);
                     SetAttribute(colString);
                     Print(ss.str());
@@ -244,15 +141,15 @@ void DebugThread::Attach() {
 
                 case EXCEPTION_DEBUG_EVENT:
                 {
-                    std::wstringstream ss;
-                    ss << fileName << " [" << processID << "]: ";
+                    ss.str(L"");
+                    ss << fileName << " [" << pid << "]: ";
                     ProcessExceptionEvent(event.u.Exception, ss);
-
                     SetAttribute(colException);
-                    if ((event.u.Exception.ExceptionRecord.ExceptionFlags & 
-                         EXCEPTION_NONCONTINUABLE) != 0) {
+                    const auto& record = event.u.Exception.ExceptionRecord;
+                    const auto& flags = record.ExceptionFlags;
+                    if ((flags & EXCEPTION_NONCONTINUABLE) != 0) {
                         SetAttribute(colFatal);
-                        ss << "[FATAL]";
+                        ss << FATAL_EXCEPTION;
                         contFlag = DBG_EXCEPTION_NOT_HANDLED;
                     }
                     Print(ss.str());
@@ -261,8 +158,8 @@ void DebugThread::Attach() {
 
                 case EXIT_PROCESS_DEBUG_EVENT:
                 {
-                    std::wstringstream ss;
-                    ss << fileName << " [" << processID << "]: Process Exited.";
+                    ss.str(L"");
+                    ss << fileName << " [" << pid << "]: " << MESSAGE_EXITED;
                     SetAttribute(colStartStop);
                     Print(ss.str());
                     this->isDetaching = true;
@@ -276,7 +173,7 @@ void DebugThread::Attach() {
         }
 
         CloseHandle(process);
-        DebugActiveProcessStop(processID);
+        DebugActiveProcessStop(pid);
     }};
 }
 

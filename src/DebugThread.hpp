@@ -8,7 +8,7 @@
 class DebugThread {
 public:
     DebugThread();
-    DebugThread(DWORD pid, HWND output);
+    DebugThread(DWORD processId, HWND output);
     ~DebugThread() noexcept;
 
     DebugThread(const DebugThread&) = delete;
@@ -21,7 +21,7 @@ public:
     void Print(std::wstring output) const;
 
 private:
-    DWORD processID;
+    DWORD pid;
     HWND textOutput;
     bool isDetaching;
     std::thread workThread;
