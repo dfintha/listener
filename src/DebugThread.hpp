@@ -7,24 +7,24 @@
 
 class DebugThread {
 public:
-	DebugThread();
-	DebugThread(DWORD pid, HWND output);
-	~DebugThread() noexcept;
+    DebugThread();
+    DebugThread(DWORD pid, HWND output);
+    ~DebugThread() noexcept;
 
-	DebugThread(const DebugThread&) = delete;
-	DebugThread(DebugThread&&) = delete;
-	DebugThread& operator=(const DebugThread&) = delete;
-	DebugThread& operator=(DebugThread&&) = delete;
+    DebugThread(const DebugThread&) = delete;
+    DebugThread(DebugThread&&) = delete;
+    DebugThread& operator=(const DebugThread&) = delete;
+    DebugThread& operator=(DebugThread&&) = delete;
 
-	void Attach();
-	void Detach();
-	void Print(std::wstring output) const;
+    void Attach();
+    void Detach();
+    void Print(std::wstring output) const;
 
 private:
-	DWORD processID;
-	HWND textOutput;
-	bool isDetaching;
-	std::thread workThread;
+    DWORD processID;
+    HWND textOutput;
+    bool isDetaching;
+    std::thread workThread;
 };
 
 #endif
