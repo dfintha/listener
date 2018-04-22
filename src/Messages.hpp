@@ -11,6 +11,9 @@ constexpr const wchar_t FATAL_EXCEPTION[] =
 constexpr const wchar_t MESSAGE_ATTACHED[] =
     L"Attached to Process";
 
+constexpr const wchar_t MESSAGE_DETACHED[] =
+    L"Detached from Process";
+
 constexpr const wchar_t MESSAGE_EXITED[] =
     L"Process Exited";
 

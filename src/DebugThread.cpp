@@ -5,7 +5,9 @@
 #include <mutex>
 #include <sstream>
 
+#if !defined(LISTENER_WINDOWED)
 static std::mutex streamMutex;
+#endif
 
 static void ProcessDebugStringEvent(HANDLE processHandle,
                                     OUTPUT_DEBUG_STRING_INFO& info,
@@ -61,7 +63,7 @@ static void ProcessExceptionEvent(EXCEPTION_DEBUG_INFO& info,
             sstream << EXCEPTION_UNKNOWN_DETAIL;
             break;
     }
-    sstream << " (0x" << std::hex << addr << "). ";
+    sstream << " (0x" << std::hex << addr << std::dec << "). ";
 }
 
 constexpr WORD colFatal = FOREGROUND_INTENSITY | FOREGROUND_RED;
@@ -69,7 +71,7 @@ constexpr WORD colStartStop = FOREGROUND_INTENSITY | FOREGROUND_GREEN;
 constexpr WORD colException = colStartStop | colFatal;
 constexpr WORD colString = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 
-static void SetAttribute(WORD colorAttrs) {
+static void SetColor(WORD colorAttrs) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorAttrs);
 }
 
@@ -118,7 +120,7 @@ void DebugThread::Attach() {
 
         std::wstringstream ss;
         ss << fileName << " [" << pid << "]: " << MESSAGE_ATTACHED;
-        SetAttribute(colStartStop);
+        SetColor(colStartStop);
         Print(ss.str());
 
         DEBUG_EVENT event;
@@ -134,7 +136,7 @@ void DebugThread::Attach() {
                     ss.str(L"");
                     ss << fileName << " [" << pid << "]: ";
                     ProcessDebugStringEvent(process, event.u.DebugString, ss);
-                    SetAttribute(colString);
+                    SetColor(colString);
                     Print(ss.str());
                     break;
                 }
@@ -144,11 +146,11 @@ void DebugThread::Attach() {
                     ss.str(L"");
                     ss << fileName << " [" << pid << "]: ";
                     ProcessExceptionEvent(event.u.Exception, ss);
-                    SetAttribute(colException);
+                    SetColor(colException);
                     const auto& record = event.u.Exception.ExceptionRecord;
                     const auto& flags = record.ExceptionFlags;
                     if ((flags & EXCEPTION_NONCONTINUABLE) != 0) {
-                        SetAttribute(colFatal);
+                        SetColor(colFatal);
                         ss << FATAL_EXCEPTION;
                         contFlag = DBG_EXCEPTION_NOT_HANDLED;
                     }
@@ -160,7 +162,7 @@ void DebugThread::Attach() {
                 {
                     ss.str(L"");
                     ss << fileName << " [" << pid << "]: " << MESSAGE_EXITED;
-                    SetAttribute(colStartStop);
+                    SetColor(colStartStop);
                     Print(ss.str());
                     this->isDetaching = true;
                 }
@@ -180,11 +182,20 @@ void DebugThread::Attach() {
 void DebugThread::Detach() {
     isDetaching = true;
     workThread.join();
+
+    std::wstringstream ss;
+    ss << "[" << pid << "]: " << MESSAGE_DETACHED;
+    SetColor(colStartStop);
+    Print(ss.str());
 }
 
 void DebugThread::Print(std::wstring output) const {
+#if !defined(LISTENER_WINDOWED)
     std::lock_guard<std::mutex> streamGuard(streamMutex);
     std::wcout << output;
     if (output[output.length() - 1] != L'\n')
         std::wcout << L'\n';
+#else
+    SendMessageW(textOutput, LB_ADDSTRING, 0, LPARAM(output.data()));
+#endif
 }

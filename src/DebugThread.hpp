@@ -20,6 +20,10 @@ public:
     void Detach();
     void Print(std::wstring output) const;
 
+    inline DWORD GetPID() const {
+        return pid;
+    }
+
 private:
     DWORD pid;
     HWND textOutput;

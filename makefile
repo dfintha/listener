@@ -1,11 +1,13 @@
 BINARY=bin/listener
 OBJECTS=obj/Main.o 				\
-        obj/DebugThread.o
+        obj/DebugThread.o       \
+        obj/Window.o
 HEADERS=src/DebugThread.hpp		\
-        src/Messages.hpp
+        src/Messages.hpp        \
+        src/Window.hpp
 
 CXX=g++
-CXXFLAGS=-std=c++14 -Wall -Wextra -Werror -pedantic -O2
+CXXFLAGS=-std=c++14 -Wall -Wextra -Werror -pedantic -O2 -DLISTENER_WINDOWED
 
 BLD=`tput bold`
 RED=`tput setaf 1`

@@ -1,8 +1,8 @@
+#if !defined(LISTENER_WINDOWED)
 #include "DebugThread.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
-
 int main(int argc, char **argv) {
     WORD colorAttrs;
     HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -33,3 +33,11 @@ int main(int argc, char **argv) {
         delete thread;
     return EXIT_SUCCESS;
 }
+#else
+#include "Window.hpp"
+int CALLBACK WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int mode) {
+    if (!InitWindow(instance) || !InvokeWindow(mode))
+        return EXIT_FAILURE;
+    return EXIT_SUCCESS;
+}
+#endif
