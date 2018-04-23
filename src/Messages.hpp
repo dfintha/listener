@@ -127,4 +127,17 @@ constexpr const wchar_t *EXCEPTION_UNKNOWN_DETAIL =
     L"EXCEPTION_UNKNOWN: "
     L"An unknown exception occurred.";
 
+#if defined(LISTENER_WINDOWED)
+
+constexpr const char BUTTON_ATTACH[] = 
+    "Attach";
+
+constexpr const char BUTTON_DETACH[] = 
+    "Detach";
+
+constexpr const char PID_LABEL[] = 
+    "PID: ";
+
+#endif
+
 #endif

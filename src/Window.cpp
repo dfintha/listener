@@ -1,5 +1,7 @@
+#if defined(LISTENER_WINDOWED)
 #include "Window.hpp"
 #include "DebugThread.hpp"
+#include "Messages.hpp"
 #include <map>
 
 constexpr const int EVENT_ATTACH = 10001;
@@ -24,9 +26,9 @@ static void ResizeEvent(int width, int height) {
 static LRESULT CALLBACK ProcEvent(HWND window, UINT msg, WPARAM w, LPARAM l) {
     switch (msg) {
         case WM_CLOSE:
-            DestroyWindow(windowHandle);
             for (auto& pair : threads)
                 delete pair.second;
+            DestroyWindow(windowHandle);
             break;
         case WM_DESTROY:
             PostQuitMessage(0);
@@ -45,14 +47,18 @@ static LRESULT CALLBACK ProcEvent(HWND window, UINT msg, WPARAM w, LPARAM l) {
                 GetWindowTextA(inputHandle, buffer, length + 1);
                 DWORD pid = std::atoi(buffer);
                 delete[] buffer;
+                if (pid == 0)
+                    break;
 
                 if (LOWORD(w) == EVENT_ATTACH) {
                     threads[pid] = new DebugThread(pid, listHandle);
                     threads[pid]->Attach();
+                    SetWindowTextA(inputHandle, "");
                 } else if (LOWORD(w) == EVENT_DETACH) {
                     threads[pid]->Detach();
                     delete threads[pid];
                     threads.erase(pid);
+                    SetWindowTextA(inputHandle, "");
                 }
             }
             break;
@@ -82,10 +88,10 @@ bool InitWindow(HINSTANCE instance) {
     if (RegisterClassEx(&windowClass) == 0)
         return false;
 
-    const DWORD windowStyle = WS_OVERLAPPEDWINDOW;
-    const DWORD windowExStyle = WS_EX_CLIENTEDGE;
-    const DWORD windowWidth = 800;
-    const DWORD windowHeight = 600;
+    constexpr DWORD windowStyle = WS_OVERLAPPEDWINDOW;
+    constexpr DWORD windowExStyle = WS_EX_CLIENTEDGE;
+    constexpr DWORD windowWidth = 800;
+    constexpr DWORD windowHeight = 600;
 
     windowHandle = CreateWindowEx(windowExStyle, 
                                   className, windowName, 
@@ -97,57 +103,58 @@ bool InitWindow(HINSTANCE instance) {
     if (windowHandle == nullptr)
         return false;
 
-    const DWORD labelStyle = WS_VISIBLE | WS_CHILD;
-    const DWORD labelLeft = 20;
-    const DWORD labelTop = 22;
-    const DWORD labelWidth = 40;
-    const DWORD labelHeight = 20;
-    labelHandle = CreateWindow("STATIC", "PID: ", 
+    constexpr DWORD labelStyle = WS_VISIBLE | WS_CHILD;
+    constexpr DWORD labelLeft = 20;
+    constexpr DWORD labelTop = 22;
+    constexpr DWORD labelWidth = 40;
+    constexpr DWORD labelHeight = 20;
+    labelHandle = CreateWindow("STATIC", PID_LABEL, 
                                labelStyle,
                                labelLeft, labelTop,
                                labelWidth, labelHeight,
                                windowHandle, nullptr, instance, nullptr);
 
-    const DWORD listStyle = WS_VISIBLE | WS_CHILD | WS_BORDER;
-    const DWORD listLeft = 20;
-    const DWORD listTop = 60;
-    const DWORD listWidth = 740;
-    const DWORD listHeight = 470;
+    constexpr DWORD listStyle = WS_VISIBLE | WS_CHILD | WS_BORDER | 
+                            WS_HSCROLL | WS_VSCROLL;
+    constexpr DWORD listLeft = 20;
+    constexpr DWORD listTop = 60;
+    constexpr DWORD listWidth = 740;
+    constexpr DWORD listHeight = 470;
     listHandle = CreateWindow("LISTBOX", windowName, 
                               listStyle,
                               listLeft, listTop,
                               listWidth, listHeight,
                               windowHandle, nullptr, instance, nullptr);
 
-    const DWORD inputStyle = WS_VISIBLE | WS_CHILD | WS_BORDER;
-    const DWORD inputLeft = 60;
-    const DWORD inputTop = 20;
-    const DWORD inputWidth = 200;
-    const DWORD inputHeight = 20;
+    constexpr DWORD inputStyle = WS_VISIBLE | WS_CHILD | WS_BORDER;
+    constexpr DWORD inputLeft = 60;
+    constexpr DWORD inputTop = 20;
+    constexpr DWORD inputWidth = 200;
+    constexpr DWORD inputHeight = 20;
     inputHandle = CreateWindow("EDIT", "", 
                                inputStyle,
                                inputLeft, inputTop,
                                inputWidth, inputHeight,
                                windowHandle, nullptr, instance, nullptr);
 
-    const DWORD attachButtonStyle = WS_VISIBLE | WS_CHILD;
-    const DWORD attachButtonLeft = 270;
-    const DWORD attachButtonTop = 20;
-    const DWORD attachButtonWidth = 60;
-    const DWORD attachButtonHeight = 20;
-    attachButtonHandle = CreateWindow("BUTTON", "Attach", 
+    constexpr DWORD attachButtonStyle = WS_VISIBLE | WS_CHILD;
+    constexpr DWORD attachButtonLeft = 270;
+    constexpr DWORD attachButtonTop = 20;
+    constexpr DWORD attachButtonWidth = 60;
+    constexpr DWORD attachButtonHeight = 20;
+    attachButtonHandle = CreateWindow("BUTTON", BUTTON_ATTACH, 
                                       attachButtonStyle,
                                       attachButtonLeft, attachButtonTop,
                                       attachButtonWidth, attachButtonHeight,
                                       windowHandle, HMENU(EVENT_ATTACH),
                                       instance, nullptr);
 
-    const DWORD detachButtonStyle = WS_VISIBLE | WS_CHILD;
-    const DWORD detachButtonLeft = 335;
-    const DWORD detachButtonTop = 20;
-    const DWORD detachButtonWidth = 60;
-    const DWORD detachButtonHeight = 20;
-    detachButtonHandle = CreateWindow("BUTTON", "Detach", 
+    constexpr DWORD detachButtonStyle = WS_VISIBLE | WS_CHILD;
+    constexpr DWORD detachButtonLeft = 335;
+    constexpr DWORD detachButtonTop = 20;
+    constexpr DWORD detachButtonWidth = 60;
+    constexpr DWORD detachButtonHeight = 20;
+    detachButtonHandle = CreateWindow("BUTTON", BUTTON_DETACH, 
                                       detachButtonStyle,
                                       detachButtonLeft, detachButtonTop,
                                       detachButtonWidth, detachButtonHeight,
@@ -169,3 +176,4 @@ bool InvokeWindow(int mode) {
 
     return true;
 }
+#endif

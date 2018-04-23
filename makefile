@@ -1,8 +1,8 @@
 BINARY=bin/listener
-OBJECTS=obj/Main.o 				\
+OBJECTS=obj/Main.o              \
         obj/DebugThread.o       \
         obj/Window.o
-HEADERS=src/DebugThread.hpp		\
+HEADERS=src/DebugThread.hpp     \
         src/Messages.hpp        \
         src/Window.hpp
 

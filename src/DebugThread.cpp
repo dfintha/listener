@@ -180,6 +180,9 @@ void DebugThread::Attach() {
 }
 
 void DebugThread::Detach() {
+    if (isDetaching)
+        return;
+    
     isDetaching = true;
     workThread.join();
 
@@ -197,5 +200,7 @@ void DebugThread::Print(std::wstring output) const {
         std::wcout << L'\n';
 #else
     SendMessageW(textOutput, LB_ADDSTRING, 0, LPARAM(output.data()));
+    const DWORD count = SendMessageW(textOutput, LB_GETCOUNT, 0, 0);
+    SendMessageW(textOutput, LB_SETCURSEL, count - 1, 0);
 #endif
 }
