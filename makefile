@@ -1,13 +1,19 @@
-BINARY=bin/listener
-OBJECTS=obj/Main.o              \
-        obj/DebugThread.o       \
-        obj/Window.o
-HEADERS=src/DebugThread.hpp     \
-        src/Messages.hpp        \
+CLIBINARY=bin/listener-cli
+GUIBINARY=bin/listener-gui
+
+CLIOBJECTS=obj/cli/Main.o           \
+           obj/cli/DebugThread.o    \
+           obj/cli/Window.o
+GUIOBJECTS=obj/gui/Main.o           \
+		   obj/gui/DebugThread.o    \
+		   obj/gui/Window.o
+
+HEADERS=src/DebugThread.hpp         \
+        src/Messages.hpp            \
         src/Window.hpp
 
 CXX=g++
-CXXFLAGS=-std=c++14 -Wall -Wextra -Werror -pedantic -O2 -DLISTENER_WINDOWED
+CXXFLAGS=-std=c++14 -Wall -Wextra -Werror -pedantic -O2
 
 BLD=`tput bold`
 RED=`tput setaf 1`
@@ -20,27 +26,46 @@ NL=\n
 
 .PHONY: all, clean
 
-all: $(BINARY)
+all: cli gui
+	@printf "%s[Success] All Builds Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
+
+gui: $(GUIBINARY)
+	@printf "%s[Success] GUI Build Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
+
+cli: $(CLIBINARY)
+	@printf "%s[Success] CLI Build Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
 
 loc:
 	@printf "%s[ Lines ]%s " "$(BLD)$(YLW)" $(NRM)
 	@cat src/* | wc -l
 
-$(BINARY): $(OBJECTS)
+$(CLIBINARY): $(CLIOBJECTS)
 	@mkdir -p bin
 	@printf "%s[Linking]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
-	@$(CXX) $(OBJECTS) -o $@ -lpsapi
+	@$(CXX) $(CLIOBJECTS) -o $@ -lpsapi
 	@printf "%s[ Strip ]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
 	@strip $@
-	@printf "%s[Success] Build Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
 
-obj/%.o: src/%.cpp $(HEADERS)
-	@mkdir -p obj
+$(GUIBINARY): $(GUIOBJECTS)
+	@mkdir -p bin
+	@printf "%s[Linking]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
+	@$(CXX) $(GUIOBJECTS) -o $@ -lpsapi -Wl,--subsystem,windows
+	@printf "%s[ Strip ]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
+	@strip $@
+
+obj/cli/%.o: src/%.cpp $(HEADERS)
+	@mkdir -p obj/cli
 	@printf "%s[Compile]%s $<$(NL)" "$(BLD)$(BLU)" $(NRM)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+obj/gui/%.o: src/%.cpp $(HEADERS)
+	@mkdir -p obj/gui
+	@printf "%s[Compile]%s $<$(NL)" "$(BLD)$(BLU)" $(NRM)
+	@$(CXX) $(CXXFLAGS) -DLISTENER_WINDOWED -c $< -o $@
 
 clean:
 	@printf "%s[ Clean ]%s bin$(NL)" "$(BLD)$(RED)" $(NRM)
 	@rm -rf bin
 	@printf "%s[ Clean ]%s obj$(NL)" "$(BLD)$(RED)" $(NRM)
 	@rm -rf obj
+
