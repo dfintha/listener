@@ -5,8 +5,8 @@ CLIOBJECTS=obj/cli/Main.o           \
            obj/cli/DebugThread.o    \
            obj/cli/Window.o
 GUIOBJECTS=obj/gui/Main.o           \
-		   obj/gui/DebugThread.o    \
-		   obj/gui/Window.o
+           obj/gui/DebugThread.o    \
+           obj/gui/Window.o
 
 HEADERS=src/DebugThread.hpp         \
         src/Messages.hpp            \
