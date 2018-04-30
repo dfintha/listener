@@ -105,7 +105,6 @@ void DebugThread::Attach() {
             return;
         }
 
-        std::wstring fileName;
         {
             WCHAR path[MAX_PATH];
             if (!GetModuleFileNameExW(process, nullptr, path, MAX_PATH)) {
@@ -187,7 +186,7 @@ void DebugThread::Detach() {
     workThread.join();
 
     std::wstringstream ss;
-    ss << "[" << pid << "]: " << MESSAGE_DETACHED;
+    ss << fileName << " [" << pid << "]: " << MESSAGE_DETACHED;
     SetColor(colStartStop);
     Print(ss.str());
 }

@@ -29,6 +29,7 @@ private:
     HWND textOutput;
     bool isDetaching;
     std::thread workThread;
+    std::wstring fileName;
 };
 
 #endif
