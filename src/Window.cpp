@@ -21,8 +21,6 @@ static void ResizeEvent(int width, int height) {
     MoveWindow(listHandle, 20, 60, listWidth, listHeight, TRUE);
 }
 
-#include <iostream>
-
 static LRESULT CALLBACK ProcEvent(HWND window, UINT msg, WPARAM w, LPARAM l) {
     switch (msg) {
         case WM_CLOSE:
