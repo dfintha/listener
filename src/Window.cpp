@@ -6,6 +6,8 @@
 
 constexpr const int EVENT_ATTACH = 10001;
 constexpr const int EVENT_DETACH = 10002;
+constexpr const char GUI_FONT[] = "Segoe UI";
+constexpr const char CON_FONT[] = "Consolas";
 
 static HWND windowHandle = nullptr;
 static HWND labelHandle = nullptr;
@@ -13,6 +15,8 @@ static HWND listHandle = nullptr;
 static HWND inputHandle = nullptr;
 static HWND attachButtonHandle = nullptr;
 static HWND detachButtonHandle = nullptr;
+static HFONT guiFont = nullptr;
+static HFONT conFont = nullptr;
 static std::map<DWORD, DebugThread *> threads;
 
 static void ResizeEvent(int width, int height) {
@@ -159,6 +163,38 @@ bool InitWindow(HINSTANCE instance) {
                                       windowHandle, HMENU(EVENT_DETACH),
                                       instance, nullptr);
 
+    guiFont = CreateFontA(16, 0, 0, 0, FW_NORMAL, 
+                          FALSE, FALSE, FALSE,
+                          ANSI_CHARSET,
+                          OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                          CLEARTYPE_QUALITY, 
+                          MAKELONG(DEFAULT_PITCH, FF_DONTCARE),
+                          GUI_FONT);
+
+    if (guiFont != nullptr) {
+        const WPARAM w = WPARAM(guiFont);
+        const LPARAM l = LPARAM(TRUE);
+        SendMessage(windowHandle, WM_SETFONT, w, l);
+        SendMessage(labelHandle, WM_SETFONT, w, l);
+        SendMessage(inputHandle, WM_SETFONT, w, l);
+        SendMessage(attachButtonHandle, WM_SETFONT, w, l);
+        SendMessage(detachButtonHandle, WM_SETFONT, w, l);
+    }
+
+    conFont = CreateFontA(14, 0, 0, 0, FW_NORMAL, 
+                          FALSE, FALSE, FALSE,
+                          ANSI_CHARSET,
+                          OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                          CLEARTYPE_QUALITY, 
+                          MAKELONG(DEFAULT_PITCH, FF_DONTCARE),
+                          CON_FONT);
+
+    if (conFont != nullptr) {
+        const WPARAM w = WPARAM(conFont);
+        const LPARAM l = LPARAM(TRUE);
+        SendMessage(listHandle, WM_SETFONT, w, l);
+    }
+
     return true;
 }
 
@@ -172,6 +208,13 @@ bool InvokeWindow(int mode) {
         DispatchMessage(&message);
     }
 
+    if (guiFont != nullptr)
+        DeleteObject(guiFont);
+
+    if (conFont != nullptr)
+        DeleteObject(conFont);
+
     return true;
 }
+
 #endif

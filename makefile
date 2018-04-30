@@ -49,7 +49,7 @@ $(CLIBINARY): $(CLIOBJECTS)
 $(GUIBINARY): $(GUIOBJECTS)
 	@mkdir -p bin
 	@printf "%s[Linking]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
-	@$(CXX) $(GUIOBJECTS) -o $@ -lpsapi -Wl,--subsystem,windows
+	@$(CXX) $(GUIOBJECTS) -o $@ -lpsapi -lwinmm -lgdi32 -Wl,--subsystem,windows
 	@printf "%s[ Strip ]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
 	@strip $@
 
