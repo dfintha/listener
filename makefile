@@ -12,6 +12,8 @@ HEADERS=src/DebugThread.hpp         \
         src/Messages.hpp            \
         src/Window.hpp
 
+PACKAGE=bin/listener.zip
+
 CXX=g++
 CXXFLAGS=-std=c++14 -Wall -Wextra -Werror -pedantic -O2
 
@@ -25,6 +27,20 @@ NRM=`tput sgr0`
 NL=\n
 
 .PHONY: all, clean
+
+deploy: $(PACKAGE)
+	@printf "%s[Success] Deployment Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
+
+$(PACKAGE): all
+	@printf "%s[  ZIP  ] Zipping...%s$(NL)" "$(BLD)$(YLW)" $(NRM)
+	@mkdir -p tmp
+	@cp `find -L -O3 /usr -name cygwin1.dll` tmp/
+	@cp `find -L -O3 /usr -name cyggcc_s-seh-1.dll` tmp/
+	@cp `find -L -O3 /usr -name cygstdc++-6.dll` tmp/
+	@cp $(CLIBINARY) tmp/
+	@cp $(GUIBINARY) tmp/
+	@cd tmp && zip ../bin/listener-current.zip ./* > /dev/null 2>&1
+	@rm -rf tmp
 
 all: cli gui
 	@printf "%s[Success] All Builds Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
