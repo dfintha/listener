@@ -17,6 +17,10 @@ PACKAGE=bin/listener.zip
 CXX=g++
 CXXFLAGS=-std=c++14 -Wall -Wextra -Werror -pedantic -O2
 
+MT="/cygdrive/c/Program Files (x86)/Windows Kits/10/bin/x86/mt.exe"
+MANIFEST="listener-gui.exe.manifest"
+WINGUIBIN="bin\\listener-gui.exe"
+
 BLD=`tput bold`
 RED=`tput setaf 1`
 GRN=`tput setaf 2`
@@ -39,6 +43,7 @@ $(PACKAGE): all
 	@cp `find -L -O3 /usr -name cygstdc++-6.dll` tmp/
 	@cp $(CLIBINARY) tmp/
 	@cp $(GUIBINARY) tmp/
+	@cp $(MANIFEST) tmp/
 	@cd tmp && zip ../bin/listener-current.zip ./* > /dev/null 2>&1
 	@rm -rf tmp
 
@@ -66,8 +71,8 @@ $(GUIBINARY): $(GUIOBJECTS)
 	@mkdir -p bin
 	@printf "%s[Linking]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
 	@$(CXX) $(GUIOBJECTS) -o $@ -lpsapi -lwinmm -lgdi32 -Wl,--subsystem,windows
-	@printf "%s[ Strip ]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
-	@strip $@
+	@printf "%s[ MFest ]%s $@$(NL)" "$(BLD)$(TEL)" $(NRM)
+	@$(MT) -nologo -manifest $(MANIFEST) -outputresource:$(WINGUIBIN)
 
 obj/cli/%.o: src/%.cpp $(HEADERS)
 	@mkdir -p obj/cli
