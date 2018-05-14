@@ -32,10 +32,13 @@ NL=\n
 
 .PHONY: all, clean
 
+all: cli gui
+	@printf "%s[Success] All Builds Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
+
 deploy: $(PACKAGE)
 	@printf "%s[Success] Deployment Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
 
-$(PACKAGE): all
+$(PACKAGE): cli gui
 	@printf "%s[  ZIP  ] Zipping...%s$(NL)" "$(BLD)$(YLW)" $(NRM)
 	@mkdir -p tmp
 	@cp `find -L -O3 /usr -name cygwin1.dll` tmp/
@@ -46,9 +49,6 @@ $(PACKAGE): all
 	@cp $(MANIFEST) tmp/
 	@cd tmp && zip ../bin/listener-current.zip ./* > /dev/null 2>&1
 	@rm -rf tmp
-
-all: cli gui
-	@printf "%s[Success] All Builds Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
 
 gui: $(GUIBINARY)
 	@printf "%s[Success] GUI Build Succeeded!%s$(NL)" "$(BLD)$(GRN)" $(NRM)
