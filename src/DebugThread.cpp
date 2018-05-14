@@ -83,14 +83,16 @@ DebugThread::DebugThread() :
     pid(0),
     textOutput(nullptr),
     isDetaching(true),
-    workThread()
+    workThread(),
+    fileName()
 { }
 
 DebugThread::DebugThread(DWORD processId, HWND output) :
     pid(processId),
     textOutput(output),
     isDetaching(false),
-    workThread()
+    workThread(),
+    fileName()
 { }
 
 DebugThread::~DebugThread() noexcept {
