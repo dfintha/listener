@@ -35,11 +35,14 @@ static void ProcessExceptionEvent(EXCEPTION_DEBUG_INFO& info,
     const size_t addr = size_t(info.ExceptionRecord.ExceptionAddress);
 
     switch (info.ExceptionRecord.ExceptionCode) {
+        case EXCEPTION_BREAKPOINT:
+            sstream << "Breakpoint Hit";
+            return;
+
         #define HandleExceptionCode(CODE) \
-            case CODE: sstream << CODE##_DETAIL; break
+            case CODE: sstream << #CODE; break
         HandleExceptionCode(EXCEPTION_ACCESS_VIOLATION);
         HandleExceptionCode(EXCEPTION_ARRAY_BOUNDS_EXCEEDED);
-        HandleExceptionCode(EXCEPTION_BREAKPOINT);
         HandleExceptionCode(EXCEPTION_DATATYPE_MISALIGNMENT);
         HandleExceptionCode(EXCEPTION_FLT_DENORMAL_OPERAND);
         HandleExceptionCode(EXCEPTION_FLT_DIVIDE_BY_ZERO);
@@ -60,10 +63,10 @@ static void ProcessExceptionEvent(EXCEPTION_DEBUG_INFO& info,
         #undef HandleExceptionCode
 
         default:
-            sstream << EXCEPTION_UNKNOWN_DETAIL;
+            sstream << L"EXCEPTION_UNKNOWN_DETAIL";
             break;
     }
-    sstream << " (0x" << std::hex << addr << std::dec << "). ";
+    sstream << " (0x" << std::uppercase << std::hex << addr << std::dec << ").";
 }
 
 constexpr WORD colFatal = FOREGROUND_INTENSITY | FOREGROUND_RED;
