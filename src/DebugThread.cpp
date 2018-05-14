@@ -1,6 +1,7 @@
 #include "DebugThread.hpp"
 #include "Messages.hpp"
 #include <psapi.h>
+#include <cstdint>
 #include <iostream>
 #include <mutex>
 #include <sstream>
@@ -32,7 +33,7 @@ static void ProcessDebugStringEvent(HANDLE processHandle,
 
 static void ProcessExceptionEvent(EXCEPTION_DEBUG_INFO& info,
                                   std::wstringstream& sstream) {
-    const size_t addr = size_t(info.ExceptionRecord.ExceptionAddress);
+    const intptr_t addr = intptr_t(info.ExceptionRecord.ExceptionAddress);
 
     switch (info.ExceptionRecord.ExceptionCode) {
         case EXCEPTION_BREAKPOINT:
